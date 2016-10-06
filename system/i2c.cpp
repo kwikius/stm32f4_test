@@ -7,6 +7,7 @@
 #include <quan/stm32/i2c/detail/get_irq_number.hpp>
 #include <quan/stm32/millis.hpp>
 #include "i2c.hpp"
+#include "led.hpp"
 
 #include "interrupt_priority.hpp"
 #include "serial_port.hpp"
@@ -18,6 +19,7 @@ namespace {
 
 // token representing wthat i2c bus has been acquired
 volatile bool i2c::m_bus_taken_token = false;
+volatile bool i2c::m_errored = false;
 
 void (* volatile i2c::pfn_event_handler)()  = i2c::default_event_handler;
 void (* volatile i2c::pfn_error_handler)()  = i2c::default_error_handler;
@@ -89,11 +91,10 @@ void i2c::init()
 
    setup_tx_dma();
    setup_rx_dma();
-   /*
-   Program the I2C_CR1 register to enable the peripheral
-   */
-   uint8_t constexpr i2c_cr1_pe_bit = 0;
-   i2c_type::get()->cr1.bb_setbit<i2c_cr1_pe_bit>();
+
+   m_errored = false;
+   release_bus();
+   peripheral_enable(true);
 }
 
 // Set up transmit dma
@@ -157,9 +158,113 @@ void i2c::default_event_handler()
     panic("i2c event def called");
 }
 
+
+// TODO. However for now I solved this by initing the pins before the module
+/*
+https://my.st.com/public/STe2ecommunities/mcu/Lists/cortex_mx_stm32/Flat.aspx?RootFolder \
+=https%3a%2f%2fmy%2est%2ecom%2fpublic%2fSTe2ecommunities%2fmcu%2fLists%2fcortex%5fmx%5fstm32%2f\
+Proper%20Initialization%20of%20the%20I2C%20Peripheral&FolderCTID=0x01200200770978C69A1141439FE559EB\
+459D7580009C4E14902C3CDE46A77F0FFD06506F5B&currentviews=1824
+Over the years I have encountered several I2C peripherals that don't always reset correctly on power up.
+When I initialize the I2C controller, or after a timeout error, I disable the I2C on the STM32, put the I2C pins in GPIO open drain mode,
+and then toggle the SCK pin (at < 100KHz) until the SDA pin shows the bus is free.  Then I enable the I2C on the STM32 and start a new transaction.
+  Jack Peacock
+*/
+
+namespace {
+
+   void delay_10usec()
+   {
+       // around 10 usec
+       uint32_t count = 500;
+       while (count > 0){
+          -- count;
+          asm volatile ("nop":::);
+       }
+   }
+
+   bool clear_i2c_bus()
+   {
+      quan::stm32::apply<
+         scl_pin
+         ,quan::stm32::gpio::mode::output // all i2c pins are this af mode on F4
+         ,quan::stm32::gpio::otype::open_drain
+         ,quan::stm32::gpio::pupd::none         //  Use external pullup 5V tolerant pins
+         ,quan::stm32::gpio::ospeed::slow
+         ,quan::stm32::gpio::ostate::high
+      >();
+
+      quan::stm32::apply<
+         sda_pin
+         ,quan::stm32::gpio::mode::input // all i2c pins are this af mode on F4
+         ,quan::stm32::gpio::otype::open_drain
+         ,quan::stm32::gpio::pupd::none          //  Use external pullup 5V tolerant pins
+         ,quan::stm32::gpio::ospeed::slow
+      >();
+
+      // want a timeout here
+      int clock_count = 100;
+
+      while (!quan::stm32::get<sda_pin>() && (clock_count > 0)){
+
+         quan::stm32::clear<scl_pin>();
+         delay_10usec();
+         quan::stm32::set<scl_pin>();
+         delay_10usec();
+         -- clock_count;
+      }
+      if ( clock_count > 0){
+         return true;
+      }else{
+         panic("couldnt clear i2c bus");
+         return false;
+      }
+   }
+
+}
+
 void i2c::default_error_handler()
 {
-   panic("i2c error def called");
+   
+   serial_port::write("i2c error handler called : ");
+
+   NVIC_DisableIRQ(DMA1_Stream4_IRQn);
+   NVIC_DisableIRQ(DMA1_Stream2_IRQn);
+   enable_error_interrupts(false);
+   enable_event_interrupts(false);
+   enable_buffer_interrupts(false);
+   // disable dma
+   enable_dma_tx_stream(false);
+   enable_dma_rx_stream(false);
+
+   uint32_t const flags = get_sr1();
+   bool flagged = false;
+   // sr1 bit 8 Bus error
+   if ( flags & ( 1 << 8)){
+     flagged = true;
+     serial_port::write("bus error");
+   }
+   if ( flags & ( 1 << 9)){
+     flagged = true;
+     serial_port::write("acknowledge failure");
+   }
+   if ( flags & ( 1 << 10)){
+     flagged = true;
+     serial_port::write("arbitration lost");
+   }
+   if ( flagged == false){
+     serial_port::write("unknown error");
+   }
+   serial_port::write("\n");
+   
+   clear_dma_tx_stream_flags();
+   clear_dma_rx_stream_flags();
+   quan::stm32::module_reset<i2c_type>();
+   quan::stm32::module_disable<i2c_type>();
+
+   clear_i2c_bus();
+   led::on();
+   m_errored = true;
 }
 
 void i2c::default_dma_tx_handler()

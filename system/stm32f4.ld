@@ -25,8 +25,10 @@ _MinStackSize = 0x2000;
 MEMORY
 {
    start_vector (rx) : org = 0x08000000, len = 16K
-   flash(a)          : org = 0x08004000, len = 32K 
+/* flash(a)          : org = 0x08004000, len = 32K 
    rom (rx)          : org = 0x0800C000, len = 976K
+*/
+   rom (rx)          : org = 0x0800C000, len = 1008K
    ram (xrw)         : org = 0x10000000, len = 64K
    ram1 (xrw)        : org = 0x20000000, len = 128K 
 }
@@ -66,7 +68,7 @@ SECTIONS
       KEEP (*(SORT(.fini_array.*)))
       PROVIDE_HIDDEN (__fini_array_end = .);
    }>start_vector
-
+/*
     .flash_memory (NOLOAD) :
    {
      
@@ -79,7 +81,7 @@ SECTIONS
       _FLASH_PAGE2 = .;
       . = . + 16K;
    }>flash =0xffff
-
+*/
    .text :
    {
       . = ALIGN(4);

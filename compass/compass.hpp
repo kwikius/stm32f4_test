@@ -60,7 +60,6 @@ private:
    static void on_dma_transfer_complete();
    static void single_byte_receive_handler();
 
-
 //------------data----
 
    static uint8_t* m_data_ptr; // return data

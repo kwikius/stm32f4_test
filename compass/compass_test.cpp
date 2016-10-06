@@ -3,7 +3,9 @@
 #include "../system/i2c.hpp"
 #include "../system/serial_port.hpp"
 #include "compass.hpp"
+#include "../system/led.hpp"
 
+using quan::stm32::millis;
 namespace {
    bool read_reg ( uint8_t reg, uint8_t * result)
    {
@@ -14,6 +16,8 @@ namespace {
          return false;
       }
    }
+
+   constexpr quan::time_<uint32_t>::ms max_time{500U};
 }
 
 bool compass_test1()
@@ -40,6 +44,7 @@ bool compass_test1()
          return false;
       }
    }else{
+      
        serial_port::write("compass sub address set failed\n");
        return false;
     }
@@ -65,16 +70,35 @@ bool compass_test()
          // actually need to have a separate compass_bus_released , since, once threade
          // bus may be taken by something else
          // if compass is only accessed in one thread this may not be a problem
-         while (!i2c::bus_released()){;}
+         // do timout
+         auto start_time = millis();
+         
+         while (!i2c::bus_released()){
+           if((millis() - start_time) > max_time){
+             serial_port::write("whoami test i2c function failed: bus not released\n");
+             // want to clean up and reset 
+             // disable interrupts
+             // set handlers
+             // try to resey i2c bus
+             if(i2c::has_errored()){
+                  i2c::init();
+             }
+             return false;
+           }
+         }
+         
          if ( whoami == compass::val::whoami){
             serial_port::printf<100>("whoami test succesful: got %u\n",static_cast<unsigned>(whoami));
             ++count;
          }else{
             serial_port::printf<100>("whoami test failed: got %u\n",static_cast<unsigned>(whoami));
-
          }
       }else{
-         serial_port::write("whoami test i2c functionfailed\n");
+        
+         serial_port::write("whoami compass test i2c read function failed: read failed\n");
+          if(i2c::has_errored()){
+                  i2c::init();
+             }
          return false;
       }
    }

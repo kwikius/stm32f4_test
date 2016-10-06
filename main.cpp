@@ -7,18 +7,16 @@ bool compass_test();
 bool compass_test1();
 bool compass_test2();
 
-
 int main()
 {
-
-  // eeprom_test();
-//   serial_port::write ("-------------------------------------------------\n");
+   serial_port::write ("-------------------------------------------------\n");
    compass_test();
-//   serial_port::write ("-------------------------------------------------\n");
+   serial_port::write ("-------------------------------------------------\n");
+   eeprom_test();
 //   compass_test1();
 //   serial_port::write ("-------------------------------------------------\n");
 //   compass_test2();
-//   serial_port::write ("-----------------Test succeeded------------------\n");
+   serial_port::write ("-----------------Test succeeded------------------\n");
    
    while (1) { asm volatile("nop":::); }
 

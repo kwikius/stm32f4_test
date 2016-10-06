@@ -2,6 +2,7 @@
 #include <quan/stm32/millis.hpp>
 #include "../system/serial_port.hpp"
 #include "../system/i2c.hpp"
+#include "../system/led.hpp"
 #include "compass.hpp"
 
 using quan::stm32::millis;
@@ -43,7 +44,12 @@ bool compass_reader1::read(uint8_t * data)
    i2c::enable_buffer_interrupts(false);
    i2c::enable_ack_bit(true);
 
+   // set up hyandlers
+   //i2c::event_handlers [] = {on_device_address_sent, on_read
+
    i2c::request_start_condition();
+
+
    return true;
 }
 
@@ -257,6 +263,7 @@ void compass_reader::on_start_sent()
    i2c::get_sr1();
    i2c::send_address(i2c_bus_address);
    i2c::set_event_handler(on_device_address_sent);
+
 }
 
 // device address sent event. EV6
@@ -294,6 +301,8 @@ void compass_reader::on_device_read_address_sent()
     i2c::get_sr2();
     if ( m_data_length > 1){ // into dma
       i2c::enable_event_interrupts(false);
+      // since we transferred control to dma
+      // then only the dma handler is  now required
       i2c::set_event_handler(i2c::default_event_handler);
     }else{ // dma doesnt work for single byte read
        i2c::enable_ack_bit(false);
@@ -312,6 +321,7 @@ void compass_reader::single_byte_receive_handler()
    i2c::release_bus();
 }
 
+// dma  handler
 void compass_reader::on_dma_transfer_complete()
 {
    i2c::enable_dma_rx_stream(false);
@@ -323,7 +333,11 @@ void compass_reader::on_dma_transfer_complete()
    i2c::release_bus();
 }
 
+// error handler
+// provide info as to who caused the error
+// then call default
 void compass::on_error()
 {
    panic ("i2c compass error");
+   i2c::default_error_handler();
 }

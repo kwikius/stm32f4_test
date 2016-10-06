@@ -142,6 +142,7 @@ set in I2C_SR1 or when the STOPF bit is cleared
         DMA1_Stream4->CR |= (1U << 0U); // (EN)
       } else {
         DMA1_Stream4->CR &= ~(1U << 0U); // (EN)
+         while (DMA1_Stream4->CR & (1U << 0U)) { asm volatile("nop":::);}
       }
    }
 
@@ -151,7 +152,8 @@ set in I2C_SR1 or when the STOPF bit is cleared
        DMA1_Stream2->CR |= (1U << 0U); // (EN)
      } else {
        DMA1_Stream2->CR &= ~(1U << 0U); // (EN)
-     }
+       while (DMA1_Stream2->CR & (1U << 0U)) { asm volatile("nop":::);}
+      }
    }
 
    static void set_dma_tx_buffer(uint8_t const* data, uint16_t numbytes)
@@ -165,6 +167,13 @@ set in I2C_SR1 or when the STOPF bit is cleared
        DMA1_Stream2->M0AR = (uint32_t)data; // buffer address
        DMA1_Stream2->NDTR = numbytes;           // num data
    }
+
+   static void peripheral_enable(bool b)
+   {
+     uint8_t constexpr i2c_cr1_pe_bit = 0;
+     i2c_type::get()->cr1.putbit<i2c_cr1_pe_bit>(b);
+   }
+// todo add clear interrupt flags
 
    static void clear_dma_tx_stream_flags(){ DMA1->HIFCR |= (0b111101 << 0U) ;} // clear flags for Dma1 Stream 4
 
@@ -192,6 +201,7 @@ set in I2C_SR1 or when the STOPF bit is cleared
    static void send_data(uint8_t data){i2c_type::get()->dr = data;}
    static uint8_t receive_data(){return static_cast<uint8_t>(i2c_type::get()->dr);}
    static const char* get_error_string();
+   static bool has_errored() { return m_errored;}
 
 private:
 
@@ -203,6 +213,8 @@ private:
    static void setup_rx_dma();
 
    static volatile bool m_bus_taken_token;
+   // if set then need to init again
+   static volatile bool m_errored;
    static void (* volatile pfn_event_handler)();
    static void (* volatile pfn_error_handler)();
    static void (* volatile pfn_dma_tx_handler)();
