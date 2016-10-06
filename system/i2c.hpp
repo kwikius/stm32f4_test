@@ -45,10 +45,12 @@ for stm32f405/7
  parts of i2c reqd
 
  i2c_bus
- i2c_pins
+ i2c_pins  various pins are valid per i2c_bus
+ // perhaps validate that they are ok for use with this bus
  i2c_dma_streams
+  various tx and rx streams are available per bus
  i2c_irq_handlers
-
+ These can be aliased to provide 
 
  DMA_Stream_TypeDef* tx_dma_stream
  DMA_Stream_TypeDef* rx_dma_stream
@@ -213,7 +215,6 @@ private:
    static void setup_rx_dma();
 
    static volatile bool m_bus_taken_token;
-   // if set then need to init again
    static volatile bool m_errored;
    static void (* volatile pfn_event_handler)();
    static void (* volatile pfn_error_handler)();

@@ -93,7 +93,7 @@ void i2c::init()
    setup_rx_dma();
 
    m_errored = false;
-   release_bus();
+
    peripheral_enable(true);
 }
 
@@ -187,7 +187,7 @@ namespace {
    {
       quan::stm32::apply<
          scl_pin
-         ,quan::stm32::gpio::mode::output // all i2c pins are this af mode on F4
+         ,quan::stm32::gpio::mode::output 
          ,quan::stm32::gpio::otype::open_drain
          ,quan::stm32::gpio::pupd::none         //  Use external pullup 5V tolerant pins
          ,quan::stm32::gpio::ospeed::slow
@@ -196,13 +196,14 @@ namespace {
 
       quan::stm32::apply<
          sda_pin
-         ,quan::stm32::gpio::mode::input // all i2c pins are this af mode on F4
+         ,quan::stm32::gpio::mode::input 
          ,quan::stm32::gpio::otype::open_drain
          ,quan::stm32::gpio::pupd::none          //  Use external pullup 5V tolerant pins
          ,quan::stm32::gpio::ospeed::slow
       >();
 
-      // want a timeout here
+      // sanity check
+      // if bus not cleared in 100 clocks probably terminal
       int clock_count = 100;
 
       while (!quan::stm32::get<sda_pin>() && (clock_count > 0)){
@@ -213,6 +214,7 @@ namespace {
          delay_10usec();
          -- clock_count;
       }
+
       if ( clock_count > 0){
          return true;
       }else{
@@ -240,17 +242,17 @@ void i2c::default_error_handler()
    uint32_t const flags = get_sr1();
    bool flagged = false;
    // sr1 bit 8 Bus error
-   if ( flags & ( 1 << 8)){
+   if ( flags & ( 1 << 8)){ // (BERR)
      flagged = true;
      serial_port::write("bus error");
    }
-   if ( flags & ( 1 << 9)){
+   if ( flags & ( 1 << 9)){  // (ARLO)
+     flagged = true; 
+     serial_port::write("arbitration lost");
+   }
+   if ( flags & ( 1 << 10)){ // (AF)
      flagged = true;
      serial_port::write("acknowledge failure");
-   }
-   if ( flags & ( 1 << 10)){
-     flagged = true;
-     serial_port::write("arbitration lost");
    }
    if ( flagged == false){
      serial_port::write("unknown error");
@@ -259,10 +261,12 @@ void i2c::default_error_handler()
    
    clear_dma_tx_stream_flags();
    clear_dma_rx_stream_flags();
+
    quan::stm32::module_reset<i2c_type>();
    quan::stm32::module_disable<i2c_type>();
 
    clear_i2c_bus();
+   release_bus();  
    led::on();
    m_errored = true;
 }
@@ -288,7 +292,9 @@ template <> __attribute__ ((interrupt ("IRQ"))) void DMA_IRQ_Handler<1,2>()
      i2c::pfn_dma_rx_handler();
 }
 
+// alias unmangled: void ::DMA_IRQ_Handler<1,4>() ;
 extern "C" void DMA1_Stream4_IRQHandler() __attribute__ ((alias ("_Z15DMA_IRQ_HandlerILi1ELi4EEvv")));
+// alias unmangled: void ::DMA_IRQ_Handler<1,2>() ;
 extern "C" void DMA1_Stream2_IRQHandler() __attribute__ ((alias ("_Z15DMA_IRQ_HandlerILi1ELi2EEvv")));
 
 extern "C" void I2C3_EV_IRQHandler() __attribute__ ((interrupt ("IRQ")));
