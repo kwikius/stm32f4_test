@@ -84,7 +84,6 @@ set in I2C_SR1 or when the STOPF bit is cleared
    // n.b the bus may still be busy after it has been released by an irq handler
    // may be waiting for stop bits etc
    // so check if bus is free use bus_free();
-   //
    static bool bus_released() { return m_bus_taken_token == false;}
 
    // true if bus now available
@@ -144,7 +143,7 @@ set in I2C_SR1 or when the STOPF bit is cleared
         DMA1_Stream4->CR |= (1U << 0U); // (EN)
       } else {
         DMA1_Stream4->CR &= ~(1U << 0U); // (EN)
-         while (DMA1_Stream4->CR & (1U << 0U)) { asm volatile("nop":::);}
+        while (DMA1_Stream4->CR & (1U << 0U)) { asm volatile("nop":::);}
       }
    }
 
@@ -161,13 +160,13 @@ set in I2C_SR1 or when the STOPF bit is cleared
    static void set_dma_tx_buffer(uint8_t const* data, uint16_t numbytes)
    {
        DMA1_Stream4->M0AR = (uint32_t)data; // buffer address
-       DMA1_Stream4->NDTR = numbytes;           // num data
+       DMA1_Stream4->NDTR = numbytes;       // num data
    }
 
    static void set_dma_rx_buffer(uint8_t * data, uint16_t numbytes)
    {
        DMA1_Stream2->M0AR = (uint32_t)data; // buffer address
-       DMA1_Stream2->NDTR = numbytes;           // num data
+       DMA1_Stream2->NDTR = numbytes;       // num data
    }
 
    static void peripheral_enable(bool b)
@@ -199,7 +198,6 @@ set in I2C_SR1 or when the STOPF bit is cleared
    static bool get_sr1_rxne(){constexpr uint8_t sr1_rxne = 6;return i2c_type::get()->sr1.bb_getbit<sr1_rxne>();}
    static bool get_sr1_stopf(){constexpr uint8_t sr1_stopf_bit =4;return i2c_type::get()->sr1.bb_getbit<sr1_stopf_bit>();}
 
-   static void send_address(uint8_t address){i2c_type::get()->dr = address;}
    static void send_data(uint8_t data){i2c_type::get()->dr = data;}
    static uint8_t receive_data(){return static_cast<uint8_t>(i2c_type::get()->dr);}
    static const char* get_error_string();

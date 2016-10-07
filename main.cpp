@@ -7,10 +7,13 @@ bool compass_test();
 bool compass_test1();
 bool compass_test2();
 
+bool lis3_mdl_test();
+
 int main()
 {
    serial_port::write ("-------------------------------------------------\n");
-   compass_test();
+  // compass_test();
+   lis3_mdl_test();
    serial_port::write ("-------------------------------------------------\n");
    eeprom_test();
 //   compass_test1();

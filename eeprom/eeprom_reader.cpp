@@ -125,7 +125,7 @@ bool i2c_eeprom_reader::read(uint32_t start_address_in,uint8_t  * data_out,uint3
 void i2c_eeprom_reader::on_start_sent()
 {  // flags sr1.sb
    i2c::get_sr1();
-   i2c::send_address(i2c_bus_address);
+   i2c::send_data(i2c_bus_address);
    i2c::set_event_handler(on_device_address_sent);
 }
 
@@ -160,7 +160,7 @@ void i2c_eeprom_reader::on_start2_sent()
 {
    // flags sr1.sb
    i2c::get_sr1();
-   i2c::send_address(i2c_bus_address | 1); // send eeprom read address
+   i2c::send_data(i2c_bus_address | 1); // send eeprom read address
    i2c::set_event_handler(on_device_read_address_sent);
 }
 

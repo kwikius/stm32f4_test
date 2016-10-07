@@ -97,7 +97,12 @@ system_objects = $(patsubst %,$(OBJDIR)%,serial_port.o i2c.o led.o setup.o spbrk
 
 local_objects = $(patsubst %,$(OBJDIR)%,main.o)
 
-objects  = $(local_objects) $(eeprom_objects) $(compass_objects) $(system_objects) $(OBJDIR)startup.o
+lis3_mdl_objects = $(patsubst %,$(OBJDIR)%,lis3_mdl.o lis3_mdl_test.o)
+
+i2c_driver_objects = $(patsubst %,$(OBJDIR)%,i2c_driver.o)
+
+objects  = $(local_objects) $(eeprom_objects) $(compass_objects) $(system_objects) \
+	$(lis3_mdl_objects) $(i2c_driver_objects) $(OBJDIR)startup.o
 
 all: test
 
@@ -126,6 +131,12 @@ $(eeprom_objects): $(OBJDIR)%.o : eeprom/%.cpp
 	$(CC) $(CFLAGS) $< -o $@
 
 $(compass_objects): $(OBJDIR)%.o : compass/%.cpp
+	$(CC) $(CFLAGS) $< -o $@
+
+$(lis3_mdl_objects): $(OBJDIR)%.o : lis3_mdl/%.cpp
+	$(CC) $(CFLAGS) $< -o $@
+
+$(i2c_driver_objects): $(OBJDIR)%.o : i2c_driver/%.cpp
 	$(CC) $(CFLAGS) $< -o $@
 
 $(OBJDIR)startup.o: system/$(STARTUP)

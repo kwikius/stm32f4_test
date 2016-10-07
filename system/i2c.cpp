@@ -93,7 +93,7 @@ void i2c::init()
    setup_rx_dma();
 
    m_errored = false;
-
+   release_bus(); 
    peripheral_enable(true);
 }
 
@@ -266,7 +266,7 @@ void i2c::default_error_handler()
    quan::stm32::module_disable<i2c_type>();
 
    clear_i2c_bus();
-   release_bus();  
+  
    led::on();
    m_errored = true;
 }

@@ -113,7 +113,7 @@ bool i2c_eeprom_writer::write(uint32_t start_address_in, uint8_t const* data_in,
 void i2c_eeprom_writer::on_start_sent()
 {
    i2c::get_sr1();
-   i2c::send_address(i2c_bus_address);
+   i2c::send_data(i2c_bus_address);
    i2c::set_event_handler(on_device_address_sent);
 }
 

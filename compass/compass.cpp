@@ -10,6 +10,8 @@ namespace {
    constexpr quan::time_<uint32_t>::ms max_time{500U};
 }
 
+
+
 uint8_t* compass_reader::m_data_ptr = nullptr; // return data
 uint32_t compass_reader::m_data_length = 0U;
 uint8_t  compass_reader::m_sub_address = 0U;
@@ -57,7 +59,7 @@ bool compass_reader1::read(uint8_t * data)
 void compass_reader1::on_start_sent()
 {
    i2c::get_sr1();
-   i2c::send_address(i2c_bus_address | 1);
+   i2c::send_data(i2c_bus_address | 1);
    i2c::set_event_handler(on_device_address_sent);
 }
 // device address sent event. EV6
@@ -120,7 +122,7 @@ bool compass_sub_address_setter::write(uint8_t sub_address)
 void compass_sub_address_setter::on_start_sent()
 {
    i2c::get_sr1();
-   i2c::send_address(i2c_bus_address);
+   i2c::send_data(i2c_bus_address);
    i2c::set_event_handler(on_device_address_sent);
 }
 
@@ -181,7 +183,7 @@ bool compass_writer::write(uint8_t sub_address, uint8_t value)
 void compass_writer::on_start_sent()
 {
    i2c::get_sr1();
-   i2c::send_address(i2c_bus_address);
+   i2c::send_data(i2c_bus_address);
    i2c::set_event_handler(on_device_address_sent);
 }
 
@@ -261,7 +263,7 @@ bool compass_reader::read(uint8_t sub_address, uint8_t * data, uint32_t data_len
 void compass_reader::on_start_sent()
 {
    i2c::get_sr1();
-   i2c::send_address(i2c_bus_address);
+   i2c::send_data(i2c_bus_address); //
    i2c::set_event_handler(on_device_address_sent);
 
 }
@@ -290,7 +292,7 @@ void compass_reader::on_sub_address_sent()
 void compass_reader::on_start2_sent()
 {
    i2c::get_sr1();
-   i2c::send_address(i2c_bus_address | 1);
+   i2c::send_data(i2c_bus_address | 1);
    i2c::set_event_handler(on_device_read_address_sent);
 }
 

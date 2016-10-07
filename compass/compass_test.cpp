@@ -56,7 +56,6 @@ bool compass_test1()
 // Do read with repeated start
 bool compass_test()
 {
-
    serial_port::write("compass WHOAMI test with repeated start\n");
    uint8_t whoami = 0;
 
@@ -74,17 +73,17 @@ bool compass_test()
          auto start_time = millis();
          
          while (!i2c::bus_released()){
-           if((millis() - start_time) > max_time){
-             serial_port::write("whoami test i2c function failed: bus not released\n");
-             // want to clean up and reset 
-             // disable interrupts
-             // set handlers
-             // try to resey i2c bus
-             if(i2c::has_errored()){
+            if((millis() - start_time) > max_time){
+               serial_port::write("whoami test i2c function failed: bus not released\n");
+               // want to clean up and reset 
+               // disable interrupts
+               // set handlers
+               // try to reset i2c bus
+               if(i2c::has_errored()){
                   i2c::init();
-             }
-             return false;
-           }
+               }
+               return false;
+            }
          }
          
          if ( whoami == compass::val::whoami){
@@ -96,9 +95,9 @@ bool compass_test()
       }else{
         
          serial_port::write("whoami compass test i2c read function failed: read failed\n");
-          if(i2c::has_errored()){
-                  i2c::init();
-             }
+         if(i2c::has_errored()){
+            i2c::init();
+         }
          return false;
       }
    }

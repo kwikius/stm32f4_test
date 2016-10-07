@@ -2,6 +2,7 @@
 #define STM32F4_I2C_LIB_COMPASS_HPP_INCLUDED
 
 #include <cstdint>
+
 /*
  basically write  a byte to set register address
    The msb of the sub address is 1 to auto incr or 0 not to  auto incr
