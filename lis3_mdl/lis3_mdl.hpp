@@ -1,44 +1,12 @@
 #ifndef LIS3_MDL_HPP_INCLUDED
 #define LIS3_MDL_HPP_INCLUDED
 
-#include <cstdint>
-#include "../i2c_driver/i2c_driver.hpp"
+#include "../i2c_driver/i2c_register_based_driver.hpp"
 
-struct lis3_mdl : i2c_driver{
-   static bool read(uint8_t register_index, uint8_t * data, uint32_t len);
-   static bool write(uint8_t register_index, uint8_t value);
-   // read handlers
-   static void on_read_start_sent();
-   static void on_read_device_address_sent();
-   static void on_read_reg_index_sent();
-   static void on_read_repeated_start_sent();
-   static void on_read_device_read_address_sent();
-   static void on_read_single_byte_handler();
-   // dma handler
-   static void on_read_dma_transfer_complete();
-      // error handler
-   static void on_read_error();
+struct lis3mdl_base {
 
-   // write handlers
-   static void on_write_start_sent();
-   static void on_write_device_address_sent();
-   static void on_write_reg_index_sent();
-   static void on_write_value_sent();
-
-
-
-  private:
-    union data_ptr_type{
-      uint8_t * read_ptr; // return data
-      uint8_t const * write_ptr;
-   };
-   static data_ptr_type m_data;
-   static uint32_t m_data_length;
-   static uint8_t  m_register_index; //
-
-  public:
-     struct reg{
-
+// the registers
+   struct reg{
       static constexpr uint8_t offset_X_reg_L = 0x05;
       static constexpr uint8_t offset_X_reg_H = 0x06;
       static constexpr uint8_t offset_Y_reg_L = 0x07;
@@ -52,15 +20,24 @@ struct lis3_mdl : i2c_driver{
       static constexpr uint8_t ctr1reg3 = 0x22;
       static constexpr uint8_t ctr1reg4 = 0x23;
       static constexpr uint8_t ctr1reg5 = 0x24;
-
    };
 
+   // values
    struct val{
       static constexpr uint8_t whoami = 0b00111101;
    };
 
-
+   // variants
+   struct onboardID{
+      static constexpr uint8_t  get_device_address() { return 0b00111000;}
+      static constexpr const char * get_device_name() {return "LIS3MDL onboard";}
+   };
 };
 
+// couple the lis3mdl resiters to the driver
+template <typename ID>
+struct lis3mdl : lis3mdl_base, i2c_register_based_driver<ID> {};
+
+typedef lis3mdl<lis3mdl_base::onboardID> lis3mdl_onboard;
 
 #endif // LIS3_MDL_HPP_INCLUDED

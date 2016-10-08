@@ -4,7 +4,8 @@
 #include "../system/led.hpp"
 #include "i2c_driver.hpp"
 
-uint8_t    i2c_driver::m_device_bus_address; 
+uint8_t     i2c_driver::m_device_bus_address = 0U; 
+const char * i2c_driver::m_device_name = nullptr;
 
 using quan::stm32::millis;
 
