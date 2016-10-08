@@ -8,6 +8,7 @@ bool compass_test1();
 bool compass_test2();
 
 bool lis3_mdl_test();
+bool bmp_280_test();
 
 int main()
 {
@@ -15,7 +16,8 @@ int main()
   // compass_test();
    lis3_mdl_test();
    serial_port::write ("-------------------------------------------------\n");
-   eeprom_test();
+   bmp_280_test();
+  // eeprom_test();
 //   compass_test1();
 //   serial_port::write ("-------------------------------------------------\n");
 //   compass_test2();

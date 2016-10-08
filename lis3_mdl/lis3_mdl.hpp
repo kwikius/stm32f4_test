@@ -34,9 +34,11 @@ struct lis3mdl_base {
    };
 };
 
-// couple the lis3mdl resiters to the driver
+// couple the lis3mdl registers with the driver
 template <typename ID>
-struct lis3mdl : lis3mdl_base, i2c_register_based_driver<ID> {};
+struct lis3mdl : lis3mdl_base, i2c_register_based_driver<ID> 
+{
+};
 
 typedef lis3mdl<lis3mdl_base::onboardID> lis3mdl_onboard;
 
