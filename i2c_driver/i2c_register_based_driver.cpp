@@ -146,20 +146,3 @@ void i2c_register_based_driver_base::on_write_value_sent()
 namespace {
    constexpr quan::time_<uint32_t>::ms wait_time{500U};
 }
-
-//template <typename ID>
-//bool i2c_register_based_driver<ID>::read(uint8_t register_index, uint8_t * data, uint32_t len)
-//{
-//     if (! get_bus(wait_time)){
-//        return false;
-//     }
-//     set_device_name(ID::device_name);
-//     set_device_address(ID::bus_address);
-//     return ll_read(register_index,data,len);
-//}
-//
-//template <typename ID>
-//bool i2c_register_based_driver<ID>::write(uint8_t register_index, uint8_t value)
-//{
-//    return false;
-//}

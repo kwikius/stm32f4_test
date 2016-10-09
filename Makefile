@@ -65,6 +65,9 @@ INCLUDES = -I$(STM32F4_INCLUDE_PATH)CMSIS/Include/ \
 -I$(QUAN_INCLUDE_PATH)
 
 CFLAG_EXTRAS = -fno-math-errno -DQUAN_STM32F4 -DQUAN_NO_EXCEPTIONS -DSTM32F405xx -DSTM32F40_41xxx -DQUAN_SYSTICK_TIMER_UINT32 -DHSE_VALUE=8000000
+
+#CFLAG_EXTRAS += -DSTM32F4_TEST_AERFLITE_BOARD
+CFLAG_EXTRAS += -DSTM32F4_TEST_QUANTRACKER_BOARD
 CFLAG_EXTRAS += -Wl,-u,vsprintf -lm
 CFLAG_EXTRAS += -DDEBUG
 CFLAG_EXTRAS += -Wall -Wno-unused-local-typedefs
@@ -101,10 +104,12 @@ lis3_mdl_objects = $(patsubst %,$(OBJDIR)%,lis3_mdl_test.o)
 
 bmp_280_objects = $(patsubst %,$(OBJDIR)%,bmp_280_test.o)
 
+bmi_160_objects = $(patsubst %,$(OBJDIR)%,bmi_160.o bmi_160_test.o)
+
 i2c_driver_objects = $(patsubst %,$(OBJDIR)%,i2c_driver.o i2c_register_based_driver.o)
 
 objects = $(local_objects) $(eeprom_objects) $(compass_objects) $(system_objects) \
-	$(lis3_mdl_objects) $(bmp_280_objects) $(i2c_driver_objects) $(OBJDIR)startup.o
+	$(bmi_160_objects) $(lis3_mdl_objects) $(bmp_280_objects) $(i2c_driver_objects) $(OBJDIR)startup.o
 
 all: test
 
@@ -141,15 +146,14 @@ $(lis3_mdl_objects): $(OBJDIR)%.o : lis3_mdl/%.cpp
 $(bmp_280_objects): $(OBJDIR)%.o : bmp_280/%.cpp
 	$(CC) $(CFLAGS) $< -o $@
 
+$(bmi_160_objects): $(OBJDIR)%.o : bmi_160/%.cpp
+	$(CC) $(CFLAGS) $< -o $@
+
 $(i2c_driver_objects): $(OBJDIR)%.o : i2c_driver/%.cpp
 	$(CC) $(CFLAGS) $< -o $@
 
 $(OBJDIR)startup.o: system/$(STARTUP)
 	$(CC) $(CFLAGS) $< -o $@
 
-#upload : test
-#	st-flash write $(BINDIR)main.bin 0x8000000
-
 upload : test
 	/home/andy/bin/stm32flash -b 115200 -f -v -w $(BINDIR)main.bin /dev/ttyUSB0
-
