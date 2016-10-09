@@ -24,11 +24,14 @@ int main()
    serial_port::write ("-------------------------------------------------\n");
 
    bmi_160_test();
-  // eeprom_test();
+
+   serial_port::write ("-------------------------------------------------\n");
+
+   eeprom_test();
 //   compass_test1();
 //   serial_port::write ("-------------------------------------------------\n");
 //   compass_test2();
-   serial_port::write ("-----------------Test completed------------------\n");
+   serial_port::write ("-----------------Tests completed------------------\n");
    
    while (1) { asm volatile("nop":::); }
 

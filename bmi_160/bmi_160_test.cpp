@@ -15,7 +15,7 @@ bool bmi_160_test()
 
    auto now = millis();
    for (;;){
-      if ( (millis() - now) > quan::time_<uint32_t>::ms{200}){ break;}
+      if ( (millis() - now) > quan::time_<uint32_t>::ms{200U}){ break;}
    }
    bmi_160::reg_read(0x7F);
    serial_port::write("bmi_160 whoami inited\n");
