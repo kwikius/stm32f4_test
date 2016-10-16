@@ -115,7 +115,7 @@ bool lis3mdl_read()
       u.ar[1] = result_values[ 2U * i + 1];
       vect[i] = u.v;
    }
-   serial_port::printf<100>("result = [%d,%d,%d]\r",vect.x,vect.y,vect.z);
+   serial_port::printf<100>("result = [%6d,%6d,%6d]\r",vect.x,vect.y,vect.z);
    return true;
 }
 
