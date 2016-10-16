@@ -58,7 +58,6 @@ void bmi_160::setup_spi_pins()
       ,quan::stm32::gpio::ospeed::medium_fast
    >();
 
-
    quan::stm32::apply<
       spi1_ncs
       ,quan::stm32::gpio::mode::output
@@ -76,11 +75,11 @@ void bmi_160::setup_spi_pins()
 void bmi_160::toggle_ncs()
 {
    // toggle ncs low --> high to make put bmi_160 in SPI mode
-   for ( uint32_t i = 0; i < 1000; ++i){
+   for ( uint32_t i = 0U; i < 1000U; ++i){
       asm volatile("nop":::);
    }
    quan::stm32::clear<spi1_ncs>();
-   for ( uint32_t i = 0; i < 1000; ++i){
+   for ( uint32_t i = 0U; i < 1000U; ++i){
       asm volatile("nop":::);
    }
    quan::stm32::set<spi1_ncs>();
@@ -89,9 +88,9 @@ void bmi_160::toggle_ncs()
 void bmi_160::setup_spi_regs()
 {
     serial_port::write("bmi_160 pin setup spi regs\n");
-   // max mbi_160 clock is 10 MHz
+   // max bmi_160 clock is 10 MHz
    // max avail stm32 clock in spec = 5.25 MHz --> spi_brr = (4 << 3)  , could try 10.5 MHz  --> (3 << 3)
-   static constexpr uint16_t spi_brr = (4 << 3);
+   static constexpr uint16_t spi_brr = (3 << 3);
 
    bmi_160::spi1::get()->cr1 = 
       ( 1 << 0)      // (CPHA)

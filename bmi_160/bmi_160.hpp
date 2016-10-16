@@ -61,9 +61,9 @@ struct bmi_160{
    static void cs_assert()
    {
       // 20 ns setup time
+      // 6ns isntruction --> ~3 nop
       quan::stm32::clear<spi1_ncs>();
       (void)ll_read();
-       asm volatile ("nop":::);
        asm volatile ("nop":::);
        asm volatile ("nop":::);
    }
@@ -71,10 +71,14 @@ struct bmi_160{
    static void cs_release()
    {
       while (busy()) { asm volatile ("nop":::);}
-      // 40 ns hold
-      for (uint8_t i = 0; i < 5; ++i){
-         asm volatile ("nop":::);
-      }
+      // 40 ns hold 
+      // 6ns instruction --> ~6 nop
+      asm volatile ("nop":::);
+      asm volatile ("nop":::);
+      asm volatile ("nop":::);
+      asm volatile ("nop":::);
+      asm volatile ("nop":::);
+      asm volatile ("nop":::);
       quan::stm32::set<spi1_ncs>();
    }
 
