@@ -112,7 +112,6 @@ bool lis3_mdl_run()
          if (!lis3mdl_start_single_measurement()){
             return false;
          }
-       //  serial_port::write("lis3mdl started measurement\n");
          auto now = millis();
          for(;;){
             if ((millis() - now) > quan::time::ms{10} ){
@@ -164,7 +163,6 @@ bool lis3_mdl_test()
             serial_port::printf<100>("whoami test failed: got %u\n",static_cast<unsigned>(whoami));
          }
       }else{
-        
          serial_port::write("whoami compass test i2c read function failed: read failed\n");
          if(i2c::has_errored()){
             i2c::init();

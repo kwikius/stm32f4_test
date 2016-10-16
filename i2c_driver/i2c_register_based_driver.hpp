@@ -4,6 +4,8 @@
 #include <cstdint>
 #include "../i2c_driver/i2c_driver.hpp"
 
+ extern "C" bool is_valid_heap_memory(void * p);
+
 /*
   ned
 */
@@ -53,6 +55,7 @@ template <typename ID>
 struct i2c_register_based_driver : i2c_register_based_driver_base{
    static bool read(uint8_t register_index, uint8_t * data, uint32_t len)
    {
+ 
       if (! get_bus(quan::time_<uint32_t>::ms{500U})){
          return false;
       }

@@ -39,6 +39,11 @@ void show_i2c_registers()
 #endif
 bool i2c_register_based_driver_base::ll_read(uint8_t register_index, uint8_t * data, uint32_t len)
 {
+
+   if ( ( len > 1 ) && ( !is_valid_heap_memory(data) ) ){
+      serial_port::write("invalid mem in i2c_reg based driver read"); 
+      return false;
+   }
    m_data.read_ptr = data;
    if ( len == 1){
       m_register_index = register_index;
@@ -206,6 +211,7 @@ void i2c_register_based_driver_base::on_write_error()
 
 bool i2c_register_based_driver_base::ll_write(uint8_t register_index, uint8_t value)
 {
+
    m_data.value_to_write = value;
    m_register_index = register_index;
    m_data_length = 1U;

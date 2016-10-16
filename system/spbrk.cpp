@@ -15,8 +15,9 @@
  along with this program. If not, see http://www.gnu.org/licenses./
  */
 
-#include <errno.h>
-#include <stddef.h> /* where ptrdiff_t is defined */
+#include <cerrno>
+#include <cstddef> /* where ptrdiff_t is defined */
+#include <cstdint>
 /*
   required by sprintf when floating point arg is required
 */
@@ -50,4 +51,10 @@ extern "C"{
 	  heap_ptr = new_heap_ptr;
 	  return (void *)old_heap_ptr;
 	}
+
+   bool is_valid_heap_memory(void * p)
+   {
+      uint32_t v = (int)  p;
+      return (v >= 0x20000000)  &&  (v < 0x20020000);
+   }                                   
 } // extern "C"
