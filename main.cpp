@@ -33,11 +33,14 @@ int main()
 //
 //   serial_port::write ("-------------------------------------------------\n");
 //
-//   eeprom_test();
+     eeprom_test();
 //
 //   serial_port::write ("-------------------------------------------------\n");
 //
     lis3_mdl_run();
+
+
+   eeprom_test();
 //   compass_test1();
 //   serial_port::write ("-------------------------------------------------\n");
 //   compass_test2();
