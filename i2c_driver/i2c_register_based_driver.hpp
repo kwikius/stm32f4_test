@@ -23,7 +23,7 @@ struct i2c_register_based_driver_base : i2c_driver{
    static void on_read_repeated_start_sent();
    static void on_read_device_read_address_sent();
    static void on_read_single_byte_handler();
-   static void on_read_multi_byte_handler();
+  // static void on_read_multi_byte_handler();
    // dma handler
    static void on_read_dma_transfer_complete();
       // error handler

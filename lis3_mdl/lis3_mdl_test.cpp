@@ -33,11 +33,15 @@ bool lis3_mdl_write_reg(uint8_t reg, uint8_t val)
    }
 }
 
+namespace {
+   uint8_t * result_values = nullptr;
+}
+
 bool lis3_mdl_setup()
 {
 
     /*
-            set full scale +-4 Gauss             CTRL_REG2  &= ~ ( bit(FS1) |  bit(FS0) )
+         set full scale +-4 Gauss             CTRL_REG2  &= ~ ( bit(FS1) |  bit(FS0) )
          set high perf ( lowest noise )       CTRL_REG1  |=   ( bit(OM1) |  bit(OM0) )
                                               CTRL_REG4  |=   ( bit(OMZ1) | bit(OMZ0) )
          set single measurement mode
@@ -61,30 +65,11 @@ bool lis3mdl_start_single_measurement()
 
 void show_i2c_registers();
 
+
+
 bool lis3mdl_read()
 {
-    uint8_t result_values [8];
-#if 0
-    for (uint8_t i = 0; i < 8; ++i){
-       bool result = lis3mdl_onboard::read(lis3mdl_onboard::reg::out_X_reg_L + i,&result_values[i],1U);
-       if ( result ){
-          auto write_start_time = millis();
-          while (!i2c::bus_released()){
-            if((millis() - write_start_time) > max_time){
-               serial_port::write("lis3_mdl read failed: bus not released\n");
-               show_i2c_registers();
-               if(i2c::has_errored()){
-                  i2c::init();
-               }
-               return false;
-            }
-         }
-      }else{
-         serial_port::write("lis3mdl read failed\n");
-         return false;
-      }
-   }
-#else
+
    bool result = lis3mdl_onboard::read(lis3mdl_onboard::reg::out_X_reg_L,result_values,8);
    if ( result ){
       auto write_start_time = millis();
@@ -103,7 +88,6 @@ bool lis3mdl_read()
    return false;
    }
 
-#endif
   // serial_port::write("lis3mdl read successful\n");
    quan::three_d::vect<int> vect;
    for ( uint32_t i = 0; i < 3; ++i){
@@ -119,9 +103,9 @@ bool lis3mdl_read()
    return true;
 }
 
-
 bool lis3_mdl_run()
 {
+   result_values = (uint8_t*)malloc(8);
    if ( lis3_mdl_setup() ){
       serial_port::write("lis3mdl setup ok\n");
       for (;;) {

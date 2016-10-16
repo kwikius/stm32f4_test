@@ -60,13 +60,12 @@ bool i2c_register_based_driver_base::ll_read(uint8_t register_index, uint8_t * d
 #endif
 
    if (m_data_length > 1 ){
-     
-//      i2c::enable_dma_bit(true);
-//      i2c::enable_dma_last_bit(true);
-//      i2c::set_dma_rx_buffer(data,m_data_length);
-//      i2c::clear_dma_rx_stream_flags();
-//      i2c::set_dma_rx_handler(on_read_dma_transfer_complete);
-//      i2c::enable_dma_rx_stream(true);
+      i2c::enable_dma_bit(true);
+      i2c::enable_dma_last_bit(true);
+      i2c::set_dma_rx_buffer(data,m_data_length);
+      i2c::clear_dma_rx_stream_flags();
+      i2c::set_dma_rx_handler(on_read_dma_transfer_complete);
+      i2c::enable_dma_rx_stream(true);
    }
 
    i2c::request_start_condition();
@@ -129,10 +128,10 @@ void i2c_register_based_driver_base::on_read_device_read_address_sent()
    i2c::get_sr2();
    if ( m_data_length > 1){ // into dma
      //  led::on();
-    //  i2c::enable_event_interrupts(false);
+      i2c::enable_event_interrupts(false);
       // since we transferred control to dma
       // then only the dma handler is  now required
-      i2c::set_event_handler(on_read_multi_byte_handler);
+     // i2c::set_event_handler(on_read_multi_byte_handler);
    }else{ // dma doesnt work for single byte read
       i2c::enable_ack_bit(false);
       i2c::request_stop_condition();
@@ -141,21 +140,21 @@ void i2c_register_based_driver_base::on_read_device_read_address_sent()
    }
 }
 
-void i2c_register_based_driver_base::on_read_multi_byte_handler()
-{   
- #if defined QUAN_I2C_DEBUG
-   i2c_registers[reg_index++] = i2c::get_sr1();
-#endif
-   *m_data.read_ptr = i2c::receive_data();
-   ++m_data.read_ptr;
-   --m_data_length;
-   if ( m_data_length == 1){
-      i2c::enable_ack_bit(false);
-      i2c::request_stop_condition();
-      i2c::enable_buffer_interrupts(true); // enable rxne
-      i2c::set_event_handler(on_read_single_byte_handler);
-   }
-}
+//void i2c_register_based_driver_base::on_read_multi_byte_handler()
+//{   
+// #if defined QUAN_I2C_DEBUG
+//   i2c_registers[reg_index++] = i2c::get_sr1();
+//#endif
+//   *m_data.read_ptr = i2c::receive_data();
+//   ++m_data.read_ptr;
+//   --m_data_length;
+//   if ( m_data_length == 1){
+//      i2c::enable_ack_bit(false);
+//      i2c::request_stop_condition();
+//      i2c::enable_buffer_interrupts(true); // enable rxne
+//      i2c::set_event_handler(on_read_single_byte_handler);
+//   }
+//}
 
 void i2c_register_based_driver_base::on_read_single_byte_handler()
 {   
