@@ -16,10 +16,19 @@ struct i2c_driver {
    // the I2C address of the derived device
    // N.B. only call these  after the bus has been acquired
    static void set_device_name( const char * name) { m_device_name = name;}
-  
    // The address is in 8 bit format. Bit 0 is the read/write bit, but is always 0 for this address
    static void set_device_address(uint8_t address) { m_device_bus_address = address;}
- 
+
+   static bool install_device(const char* name, uint8_t address)
+   {
+      if (! get_bus(quan::time_<uint32_t>::ms{500U})){
+         return false;
+      }
+      set_device_name(name);
+      set_device_address(address);
+      return true;
+   }
+
  private:
    static uint8_t            m_device_bus_address; 
    static const char*        m_device_name;

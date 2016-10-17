@@ -11,8 +11,10 @@ bool compass_test2();
 bool lis3_mdl_test();
 bool bmp_280_test();
 bool bmi_160_test();
-
+bool bmp_280_run();
 bool lis3_mdl_run();
+
+bool bmp280_math_test();
 
 int main()
 {
@@ -33,14 +35,16 @@ int main()
 //
 //   serial_port::write ("-------------------------------------------------\n");
 //
-     eeprom_test();
+//     eeprom_test();
 //
 //   serial_port::write ("-------------------------------------------------\n");
 //
-    lis3_mdl_run();
+   // lis3_mdl_run();
 
+   bmp_280_run();
+  //bmp280_math_test();
 
-   eeprom_test();
+ //  eeprom_test();
 //   compass_test1();
 //   serial_port::write ("-------------------------------------------------\n");
 //   compass_test2();

@@ -18,7 +18,7 @@ This function starts the read and then  returns
  which signals that the read has been successful
  see the lis3_mdl_test example.
 */
-#define QUAN_I2C_DEBUG
+//#define QUAN_I2C_DEBUG
 
 #if defined QUAN_I2C_DEBUG
 namespace {
@@ -45,11 +45,11 @@ bool i2c_register_based_driver_base::ll_read(uint8_t register_index, uint8_t * d
       return false;
    }
    m_data.read_ptr = data;
-   if ( len == 1){
+  // if ( len == 1){
       m_register_index = register_index;
-   }else{
-     m_register_index = register_index | 0x80;
-   }
+//   }else{
+//     m_register_index = register_index | 0x80;
+//   }
    m_data_length = len;
 
    i2c::set_error_handler(on_read_error);
@@ -136,7 +136,6 @@ void i2c_register_based_driver_base::on_read_device_read_address_sent()
       i2c::enable_event_interrupts(false);
       // since we transferred control to dma
       // then only the dma handler is  now required
-     // i2c::set_event_handler(on_read_multi_byte_handler);
    }else{ // dma doesnt work for single byte read
       i2c::enable_ack_bit(false);
       i2c::request_stop_condition();
@@ -144,22 +143,6 @@ void i2c_register_based_driver_base::on_read_device_read_address_sent()
       i2c::set_event_handler(on_read_single_byte_handler);
    }
 }
-
-//void i2c_register_based_driver_base::on_read_multi_byte_handler()
-//{   
-// #if defined QUAN_I2C_DEBUG
-//   i2c_registers[reg_index++] = i2c::get_sr1();
-//#endif
-//   *m_data.read_ptr = i2c::receive_data();
-//   ++m_data.read_ptr;
-//   --m_data_length;
-//   if ( m_data_length == 1){
-//      i2c::enable_ack_bit(false);
-//      i2c::request_stop_condition();
-//      i2c::enable_buffer_interrupts(true); // enable rxne
-//      i2c::set_event_handler(on_read_single_byte_handler);
-//   }
-//}
 
 void i2c_register_based_driver_base::on_read_single_byte_handler()
 {   
@@ -176,7 +159,6 @@ void i2c_register_based_driver_base::on_read_single_byte_handler()
 // dma handler
 void i2c_register_based_driver_base::on_read_dma_transfer_complete()
 { 
-   
    i2c::enable_dma_rx_stream(false);
    i2c::enable_dma_bit(false);
    i2c::enable_dma_last_bit(false);
@@ -207,7 +189,6 @@ void i2c_register_based_driver_base::on_write_error()
    serial_port::write(" : write error");
    i2c::default_error_handler();
 }
-
 
 bool i2c_register_based_driver_base::ll_write(uint8_t register_index, uint8_t value)
 {

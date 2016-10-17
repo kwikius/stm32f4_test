@@ -63,20 +63,23 @@ bool lis3mdl_start_single_measurement()
     return lis3_mdl_write_reg(lis3mdl_onboard::reg::ctrlreg3, 1U);
 }
 
+#if defined QUAN_I2C_DEBUG
 void show_i2c_registers();
-
+#endif
 
 
 bool lis3mdl_read()
 {
-
-   bool result = lis3mdl_onboard::read(lis3mdl_onboard::reg::out_X_reg_L,result_values,8);
+   // or reg to read with 0x80 for multiple byte read
+   bool result = lis3mdl_onboard::read(lis3mdl_onboard::reg::out_X_reg_L | 0x80 ,result_values,8);
    if ( result ){
       auto write_start_time = millis();
       while (!i2c::bus_released()){
          if((millis() - write_start_time) > max_time){
             serial_port::write("lis3_mdl read failed: bus not released\n");
+#if defined QUAN_I2C_DEBUG
             show_i2c_registers();
+#endif
             if(i2c::has_errored()){
                i2c::init();
             }
@@ -85,7 +88,7 @@ bool lis3mdl_read()
      }
    }else{
       serial_port::write("lis3mdl read failed\n");
-   return false;
+      return false;
    }
 
   // serial_port::write("lis3mdl read successful\n");
