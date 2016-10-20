@@ -11,6 +11,7 @@ bool compass_test2();
 bool lis3_mdl_test();
 bool bmp_280_test();
 bool bmi_160_test();
+bool bmi_160_run();
 bool bmp_280_run();
 bool lis3_mdl_run();
 
@@ -41,7 +42,7 @@ int main()
 //
    // lis3_mdl_run();
 
-   bmp_280_run();
+   bmi_160_run();
   //bmp280_math_test();
 
  //  eeprom_test();

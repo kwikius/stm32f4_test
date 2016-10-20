@@ -70,7 +70,7 @@ CFLAG_EXTRAS += -DSTM32F4_TEST_AERFLITE_BOARD
 #CFLAG_EXTRAS += -DSTM32F4_TEST_QUANTRACKER_BOARD
 CFLAG_EXTRAS += -Wl,-u,vsprintf -lm
 CFLAG_EXTRAS += -DDEBUG
-CFLAG_EXTRAS += -Wall -Wno-unused-local-typedefs
+CFLAG_EXTRAS += -Wall -Wno-unused-variable -Wno-unused-local-typedefs
 CFLAG_EXTRAS += -fmax-errors=1
 
 PROCESSOR_FLAGS = -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mthumb -mfloat-abi=hard

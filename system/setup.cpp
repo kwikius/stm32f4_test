@@ -8,6 +8,12 @@
 #include <cstdlib>
 
 
+void delay(quan::time::ms const & t)
+{
+   auto const elapsed = quan::stm32::millis();
+   while ( (quan::stm32::millis() - elapsed) <= t) { asm volatile ("nop":::);}
+}
+
 namespace {
 
    void setup_systick()
@@ -25,8 +31,9 @@ namespace {
 
    void startup_delay()
    {
-      auto elapsed = quan::stm32::millis();
-      while ( (quan::stm32::millis() - elapsed) < quan::time_<uint32_t>::ms{500U}) {;}
+//      auto elapsed = quan::stm32::millis();
+//      while ( (quan::stm32::millis() - elapsed) < quan::time_<uint32_t>::ms{500U}) {;}
+       delay(quan::time::ms{500});
    }
 
 }

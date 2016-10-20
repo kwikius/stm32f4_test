@@ -13,6 +13,10 @@
 
 #include "../system/serial_port.hpp"
 
+/*
+see ardupilot/libraries/AP_InertialSensor_BMI160.cpp
+*/
+
 void bmi_160::init()
 {
    setup_rcc();
