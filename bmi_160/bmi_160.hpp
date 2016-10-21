@@ -346,8 +346,7 @@ struct bmi_160{
    static void read(uint8_t reg, uint8_t* data, uint16_t len)
    {
       cs_assert();
-      while (!txe()){;}
-      ll_write(reg | 0x80);
+      transfer(reg | 0x80);
       transfer(data,data,len);
       cs_release();
    }
