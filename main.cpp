@@ -17,6 +17,8 @@ bool lis3_mdl_run();
 
 bool bmp280_math_test();
 
+bool pwm_test();
+
 int main()
 {
    led::off();
@@ -42,8 +44,10 @@ int main()
 //
    // lis3_mdl_run();
 
-   bmi_160_run();
+   //bmi_160_run();
   //bmp280_math_test();
+
+   pwm_test();
 
  //  eeprom_test();
 //   compass_test1();

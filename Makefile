@@ -108,8 +108,11 @@ bmi_160_objects = $(patsubst %,$(OBJDIR)%,bmi_160.o bmi_160_test.o)
 
 i2c_driver_objects = $(patsubst %,$(OBJDIR)%,i2c_driver.o i2c_register_based_driver.o)
 
+pwm_objects  = $(patsubst %,$(OBJDIR)%, pwm_test.o)
+
 objects = $(local_objects) $(eeprom_objects) $(compass_objects) $(system_objects) \
-	$(bmi_160_objects) $(lis3_mdl_objects) $(bmp_280_objects) $(i2c_driver_objects) $(OBJDIR)startup.o
+	$(bmi_160_objects) $(lis3_mdl_objects) $(bmp_280_objects) $(i2c_driver_objects) \
+   $(pwm_objects) $(OBJDIR)startup.o
 
 all: test
 
@@ -147,6 +150,9 @@ $(bmp_280_objects): $(OBJDIR)%.o : bmp_280/%.cpp
 	$(CC) $(CFLAGS) $< -o $@
 
 $(bmi_160_objects): $(OBJDIR)%.o : bmi_160/%.cpp
+	$(CC) $(CFLAGS) $< -o $@
+
+$(pwm_objects): $(OBJDIR)%.o : pwm/%.cpp
 	$(CC) $(CFLAGS) $< -o $@
 
 $(i2c_driver_objects): $(OBJDIR)%.o : i2c_driver/%.cpp
