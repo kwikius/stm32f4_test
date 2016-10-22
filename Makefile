@@ -96,7 +96,7 @@ eeprom_objects = $(patsubst %,$(OBJDIR)%,eeprom_writer.o eeprom_reader.o eeprom_
 
 compass_objects = $(patsubst %,$(OBJDIR)%,compass.o compass_test.o)
 
-system_objects = $(patsubst %,$(OBJDIR)%,serial_port.o i2c.o led.o setup.o spbrk.o system_init.o)
+system_objects = $(patsubst %,$(OBJDIR)%,serial_port.o i2c.o led.o setup.o spbrk.o system_init.o sd_detect.o)
 
 local_objects = $(patsubst %,$(OBJDIR)%,main.o)
 
