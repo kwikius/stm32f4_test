@@ -25,7 +25,7 @@ int main()
    led::off();
    serial_port::write ("-------------------------------------------------\n");
 
-   setup_card_detect();
+   //setup_card_detect();
 
    //  compass_test2();
   // compass_test();
@@ -50,7 +50,7 @@ int main()
    //bmi_160_run();
   //bmp280_math_test();
 
-  // pwm_test();
+   pwm_test();
 
  //  eeprom_test();
 //   compass_test1();
