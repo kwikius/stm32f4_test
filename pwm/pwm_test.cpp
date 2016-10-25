@@ -15,13 +15,22 @@ namespace {
 
    typedef quan::stm32::tim1 rc_out_timer;
 
-   typedef quan::mcu::pin<quan::stm32::gpiob,1> rc_out6;
-
    constexpr uint32_t timer_freq = quan::stm32::get_raw_timer_frequency<rc_out_timer>();
+
+   typedef quan::mcu::pin<quan::stm32::gpiob,0> rc_out5;
+   typedef quan::mcu::pin<quan::stm32::gpiob,1> rc_out6;
 
    void setup_pin()
    {
       quan::stm32::module_enable<rc_out6::port_type>();
+
+      // set up as mode TIM1_CH2N
+      quan::stm32::apply<
+         rc_out5
+         ,quan::stm32::gpio::mode::af1
+         ,quan::stm32::gpio::pupd::none
+         ,quan::stm32::gpio::ospeed::slow
+      >();
 
       // set up as mode TIM1_CH3N
       quan::stm32::apply<
@@ -50,10 +59,20 @@ namespace {
 
       {
          quan::stm32::tim::cr2_t cr2 = 0; 
+         cr2.ois2n = false;  // output idle state state when moe == 0
          cr2.ois3n = false;  // output idle state state when moe == 0
          cr2.ccpc = false;  
          cr2.ccds = false;
          rc_out_timer::get()->cr2.set(cr2.value);
+      }
+
+       {
+        // set pwm mode on ch2 pwm mode in OCxM in TIM1_CCMRx
+         quan::stm32::tim::ccmr1_t ccmr1 = 0;
+         ccmr1.cc2s = 0b00; // channel 2 output
+         ccmr1.oc2m = 0b110;  // PWM mode 1
+         ccmr1.oc2pe = true;  // recommended setting
+         rc_out_timer::get()->ccmr1.set(ccmr1.value);
       }
 
       {
@@ -66,8 +85,11 @@ namespace {
       }
 
       {
-        // set up TIM1_CH3N polarity high pulse
+        // set up TIM1_CH2N,TIM1_CH3N polarity high pulse
          quan::stm32::tim::ccer_t ccer = 0;
+         ccer.cc2np = false; // TIM1_CH2N is positive pulse
+         ccer.cc2e = false ; // enable TIM1_CH2N
+         ccer.cc2ne = true  ; // enable TIM1_CH2N
          ccer.cc3np = false; // TIM1_CH3N is positive pulse
          ccer.cc3e = false ; // enable TIM1_CH3N
          ccer.cc3ne = true  ; // enable TIM1_CH3N
@@ -104,30 +126,50 @@ bool pwm_test()
 
    rc_out_timer::get()->sr = 0;
   
-
    rc_out_timer::get()->cr1.bb_setbit<0>(); // (CEN)
 
- 
-   uint16_t pwm = 1500U;
-   rc_out_timer::get()->ccr3 = pwm;
-   bool dir = true;
-   auto now = millis();
+   uint16_t pwm5 = 1500U;
+   uint16_t pwm6 = 1500U;
+
+   rc_out_timer::get()->ccr2 = pwm5;
+   rc_out_timer::get()->ccr3 = pwm6;
+
+   bool dir6 = true;
+   bool dir5 = false;
+   quan::time::ms now6 = millis();
+   quan::time::ms now5 = millis();
+
    for (;; ){
-      asm volatile ("nop":::);
-      if((millis() - now) > quan::time::ms{2000}){
-         now = millis();
-         if ( dir == true){
-             pwm += 100U;
-             if ( pwm >= 2000U){
-               dir = false;
+      if((millis() - now6) > quan::time::ms{500}){
+         now6 = millis();
+         if ( dir6 == true){
+             pwm6 += 100U;
+             if ( pwm6 >= 2000U){
+               dir6 = false;
              }
          }else{
-             pwm -= 100U;
-             if ( pwm <= 1000U){
-               dir = true;
+             pwm6 -= 100U;
+             if ( pwm6 <= 1000U){
+               dir6 = true;
              }
          }
-         rc_out_timer::get()->ccr3 = pwm;
+         rc_out_timer::get()->ccr3 = pwm6;
+      }
+
+      if((millis() - now5) > quan::time::ms{600}){
+         now5 = millis();
+         if ( dir5 == true){
+             pwm5 += 150U;
+             if ( pwm5 >= 2000U){
+               dir5 = false;
+             }
+         }else{
+             pwm5 -= 150U;
+             if ( pwm5 <= 1000U){
+               dir5 = true;
+             }
+         }
+         rc_out_timer::get()->ccr2 = pwm5;
       }
    }
 
