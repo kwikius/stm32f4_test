@@ -50,7 +50,7 @@ int main()
    //bmi_160_run();
   //bmp280_math_test();
 
-   pwm_test();
+  // pwm_test();
 
  //  eeprom_test();
 //   compass_test1();
